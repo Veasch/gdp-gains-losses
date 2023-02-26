@@ -1,0 +1,35 @@
+---
+title: "Track International GDP, Gains and Losses"
+author: "Veasch"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+format: html
+execution:
+  echo: FALSE
+  message: FALSE
+---
+
+```{r include=FALSE}
+library(tidyverse)
+library(plotly)
+```
+
+## Background
+
+This is my first R-script that is directly linked to GitHub. My objective for this project is to replicate an [interactive graph](https://www.fusioncharts.com/demos/datastories/jobs-gain-and-loss/) that tracks the number of sectors gaining or losing jobs over time. I find this graph very particularly fascinating.
+
+![Static image of the interactive graph.](figures/img_gdp.png){fig-align="center"}
+
+Over the next few days or weeks, I plan to create a similar interactive graph, but this time using international data on [GDP changes](https://www.kaggle.com/datasets/fredericksalazar/pib-gdp-global-by-countries-since-1960-to-2021?resource=download) by different regions since 1960 to 2021.
+
+## About the data
+
+Let's begin by taking a look at the raw data.
+
+```{r message=FALSE}
+gdp_data <- paste0(getwd(), "/data/countries_gdp_hist.csv") |> 
+  read_csv2()
+
+glimpse(gdp_data)
+```
+
+## How to ggplot
