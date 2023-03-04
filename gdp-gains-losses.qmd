@@ -9,8 +9,8 @@ execution:
 ---
 
 ```{r include=FALSE}
-library(tidyverse)
-library(plotly)
+if (!require('pacman')) install.packages('pacman')
+pacman::p_load(tidyverse, plotly)
 ```
 
 ## Background
