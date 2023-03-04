@@ -15,15 +15,35 @@ library(plotly)
 
 ## Background
 
-This is my first R-script that is directly linked to GitHub. My objective for this project is to replicate an [interactive graph](https://www.fusioncharts.com/demos/datastories/jobs-gain-and-loss/) that tracks the number of sectors gaining or losing jobs over time. I find this graph very particularly fascinating.
+This is my very first R-script that is directly linked to GitHub. My objective for this project is to replicate an [interactive graph](https://www.fusioncharts.com/demos/datastories/jobs-gain-and-loss/) that tracks the number of sectors gaining or losing jobs over time. I find this graph particularly fascinating.
 
 ![Static image of the interactive graph.](figures/img_gdp.png){fig-align="center"}
 
 Over the next few days or weeks, I plan to create a similar interactive graph, but this time using international data on [GDP changes](https://www.kaggle.com/datasets/fredericksalazar/pib-gdp-global-by-countries-since-1960-to-2021?resource=download) by different regions since 1960 to 2021.
 
-## About the data
+## How to ggplot: Part I (the static plot)
 
-Let's begin by taking a look at the raw data.
+### The original plot
+
+First of all, let's try to describe which variables are mapped to which aesthetic elements:
+
+-   `year` to the x-axis
+
+    -   data type: factor (or ordered)
+
+-   `rank` of gaining sectors (descending order) to y-xis
+
+    -   data type: ordered
+
+-   `gain` in percent is mapped to `color` or `fill`
+
+    -   data type: numeric
+
+-   geometric object: `geom_point`, but I'm not sure
+
+### The new plot
+
+Let's start by examining the raw data.
 
 ```{r message=FALSE}
 gdp_data <- paste0(getwd(), "/data/countries_gdp_hist.csv") |> 
@@ -32,4 +52,88 @@ gdp_data <- paste0(getwd(), "/data/countries_gdp_hist.csv") |>
 glimpse(gdp_data)
 ```
 
-## How to ggplot
+Following the grammar of ggplot2, `year` will be mapped to `x`, a transformed variable (`rank`) to `y`, and `gdp_variation` be mapped to `color`. `gpd_variation` will be aggregated by `region_name` or `sub_region_name`, depending on the number of levels, which are expected to be around 20, similar to the number of sectors in the original plot.
+
+## Data tidying
+
+To determine the required variables, I have to first identify the variable that corresponds to `sector` in the original plot.
+
+```{r}
+region_count = gdp_data |> 
+  mutate(across(c(region_name, sub_region_name), factor)
+         ) |> 
+  summarise(across(c(region_name, sub_region_name), n_distinct)
+         )
+
+region_count
+
+sub_region_count = region_count |> 
+  pull(sub_region_name)
+```
+
+As there are a total `r sub_region_count` sub regions, I will use `sub_region_name` as substitute for `sector`.
+
+### Transform data set
+
+```{r}
+gdp_data_raw = gdp_data
+
+gdp_data = gdp_data |> 
+  select(country_name, sub_region_name, year, gdp_variation) |> 
+  mutate(across(country_name:year, factor),
+         gdp_variation = as.numeric(gdp_variation)
+  )
+
+# glimpse(gdp_data)
+
+gdp_data |> 
+  summarise(across(everything(), ~ sum(is.na(.))
+                   )
+            )
+```
+
+No NAs.
+
+```{r}
+ggplot(gdp_data, aes(x = sub_region_name, y = gdp_variation)) +
+  geom_boxplot()
+```
+
+To handle the presence of outliers, I plan to compute z-scores by sub region, in order to include only values of `gdp_variation` within two standard deviation units.
+
+```{r}
+gdp_data |> 
+  group_by(sub_region_name) |> 
+  mutate(z_score = scale(gdp_variation)) |> 
+  ggplot(aes(x = sub_region_name, y = z_score)) +
+  geom_boxplot()
+
+gdp_data |> 
+  group_by(sub_region_name) |> 
+  mutate(z_score = scale(gdp_variation)) |> 
+  filter(abs(z_score) < 2) |> ### keeping gdp_variations where z < 2
+  ggplot(aes(x = sub_region_name, y = z_score)) +
+  geom_boxplot()
+```
+
+### First plot
+
+```{r}
+gdp_data_aggregated = gdp_data |> 
+  group_by(sub_region_name) |> ### keeping gdp_variations where z < 2
+  mutate(z_score = scale(gdp_variation)) |> 
+  filter(abs(z_score) < 2) |> 
+  ungroup() |> 
+  
+  group_by(sub_region_name, year) |> ### aggregation
+  summarise(median_gdp_variation = median(gdp_variation))
+  
+  
+gdp_data_aggregated |> 
+  ggplot(aes(year, median_gdp_variation, group = sub_region_name, color = median_gdp_variation)) +
+  geom_point() +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_color_gradient2()
+```
+
+Appears to be a big step in the right direction. But we still have a long way to go.
