@@ -46,7 +46,7 @@ First of all, let's try to describe which variables are mapped to which aestheti
 Let's start by examining the raw data.
 
 ```{r message=FALSE}
-gdp_data <- paste0(getwd(), "/data/countries_gdp_hist.csv") |> 
+gdp_data <- paste0(dirname(getwd()), "/data/countries_gdp_hist.csv") |> 
   read_csv2()
 
 glimpse(gdp_data)
