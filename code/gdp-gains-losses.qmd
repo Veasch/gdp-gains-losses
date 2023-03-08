@@ -17,7 +17,7 @@ pacman::p_load(tidyverse, plotly)
 
 This is my very first R-script that is directly linked to GitHub. My objective for this project is to replicate an [interactive graph](https://www.fusioncharts.com/demos/datastories/jobs-gain-and-loss/) that tracks the number of sectors gaining or losing jobs over time. I find this graph particularly fascinating.
 
-![Static image of the interactive graph.](figures/img_gdp.png){fig-align="center"}
+![Static image of the interactive graph.](images/img_gdp.png){fig-align="center"}
 
 Over the next few days or weeks, I plan to create a similar interactive graph, but this time using international data on [GDP changes](https://www.kaggle.com/datasets/fredericksalazar/pib-gdp-global-by-countries-since-1960-to-2021?resource=download) by different regions since 1960 to 2021.
 

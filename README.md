@@ -1,2 +1,2 @@
 # gdp-gains-losses
-Track International GDP, Gains and Losses
+In this project, I aim to recreate a plot that I found on this webpage (https://www.fusioncharts.com/demos/datastories/jobs-gain-and-loss/). The primary objective is to practice writing code in the `tidyverse` style, as I have primarily worked with `data.table` in the past. Additionally, I intend to gain a deeper understanding of `ggplot2` by using it to recreate the plot. Through this exercise, I hope to develop my skills in data visualization and expand my proficiency in `R` programming.
